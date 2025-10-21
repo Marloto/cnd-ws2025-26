@@ -72,7 +72,7 @@ public class Servlet extends HttpServlet {
                     // Close all the connections
                     st.close();
                     con.close();
-                    out.println("<html><body><b>Element insert!</b><a href=\\\"/list\\\">Back to List</a></body></html>");
+                    out.println("<html><body><b>Element insert!</b><a href=\"/list\">Back to List</a></body></html>");
                     break;
                 default:
                     response.setStatus(404);
