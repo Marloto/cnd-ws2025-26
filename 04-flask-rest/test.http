@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:5000
+@baseUrl = http://localhost:3000
 @postId = {{createPost.response.body.$.id}}
 
 ### List all posts

@@ -12,3 +12,5 @@ target
 .project
 
 *.iml
+venv/
+instance/
