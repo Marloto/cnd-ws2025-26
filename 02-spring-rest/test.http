@@ -1,3 +1,14 @@
+GET http://localhost:8080/hello-world/Ich
+
+###
+
+POST http://localhost:8080/hello-world
+Content-Type: application/json
+
+{"name":  "Ich"}
+
+###
+
 GET http://localhost:8080/
 
 ###
@@ -16,7 +27,7 @@ Content-Type: application/json
 
 ###
 
-GET localhost:8080/posts/0fb40e78-1dec-416d-9ed0-d35dec40a597
+GET localhost:8080/posts/6cbf9aa4-e3c4-4f12-93c2-41e01e646e39
 
 ###
 
