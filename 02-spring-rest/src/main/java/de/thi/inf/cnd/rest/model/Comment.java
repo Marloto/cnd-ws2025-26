@@ -1,36 +1,27 @@
 package de.thi.inf.cnd.rest.model;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-@Entity
 @Data
 @AllArgsConstructor
-public class Post {
+@Entity
+public class Comment {
     @Id
     @Setter(AccessLevel.NONE)
     private UUID id;
-
-    private String title;
-    private String content;
+    private String text;
     private LocalDateTime date;
-    private UUID userRef;
+    private String userRef;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Comment> comments;
-
-    public Post() {
+    public Comment() {
         this.id = UUID.randomUUID();
     }
 }
