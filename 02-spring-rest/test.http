@@ -1,44 +1,59 @@
-GET http://localhost:8080/hello-world/Ich
+@baseUrl = http://localhost:8080
+@postId = {{createPost.response.headers.Location}}
 
-###
+### List all posts
+GET {{baseUrl}}/posts
 
-POST http://localhost:8080/hello-world
-Content-Type: application/json
-
-{"name":  "Ich"}
-
-###
-
-GET http://localhost:8080/
-
-###
-
-GET localhost:8080/posts
-
-###
-
-POST localhost:8080/posts
+### Create a new post
+# @name createPost
+POST {{baseUrl}}/posts
 Content-Type: application/json
 
 {
-  "title": "Test123",
-  "content": "abc..."
+  "title": "My First Post",
+  "content": "This is the content of my first post"
 }
 
-###
+### Get the created post
+GET {{postId}}
 
-GET localhost:8080/posts/6cbf9aa4-e3c4-4f12-93c2-41e01e646e39
-
-###
-
-DELETE localhost:8080/posts/e49dcac1-eb4f-42af-909a-9e588db63682
-
-###
-
-PUT localhost:8080/posts/e49dcac1-eb4f-42af-909a-9e588db63682
+### Update the post
+PUT {{postId}}
 Content-Type: application/json
 
 {
-  "title": "Test123",
-  "content": "changed..."
+  "title": "Updated Post Title",
+  "content": "This content has been updated"
 }
+
+### Get updated post
+GET {{postId}}
+
+### Add a comment to the post
+POST {{postId}}/comments
+Content-Type: application/json
+
+{
+  "author": "John Doe",
+  "content": "Great post!"
+}
+
+### Add another comment
+POST {{postId}}/comments
+Content-Type: application/json
+
+{
+  "author": "Jane Smith",
+  "content": "Very interesting, thanks for sharing!"
+}
+
+### Get all comments for the post
+GET {{postId}}/comments
+
+### Delete the post
+DELETE {{postId}}
+
+### Verify post is deleted (should return 404)
+GET {{postId}}
+
+###

@@ -4,23 +4,19 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.thi.inf.sesa</groupId>
-	<artifactId>grpc-service-example</artifactId>
+	<artifactId>grpc-simple-example</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>grpc-service-example</name>
-	<description>Demo project for Spring Boot with gRPC</description>
+	<name>grpc-simple-example</name>
+	<description>Demo project for plain gRPC</description>
 
 	<properties>
-		<protobuf.version>3.14.0</protobuf.version>
+		<java.version>21</java.version>
+		<protobuf.version>3.25.5</protobuf.version>
 		<protobuf-plugin.version>0.6.1</protobuf-plugin.version>
-		<grpc.version>1.35.0</grpc.version>
+		<grpc.version>1.68.1</grpc.version>
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>net.devh</groupId>
-			<artifactId>grpc-server-spring-boot-starter</artifactId>
-			<version>2.12.0.RELEASE</version>
-		</dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-stub</artifactId>
@@ -29,6 +25,16 @@
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-services</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty</artifactId>
             <version>${grpc.version}</version>
         </dependency>
         <dependency>
@@ -57,8 +63,11 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>11</source>
-					<target>11</target>
+					<source>21</source>
+					<target>21</target>
+					<compilerArgs>
+						<arg>-Xlint:-options</arg>
+					</compilerArgs>
 				</configuration>
 			</plugin>
             <plugin>

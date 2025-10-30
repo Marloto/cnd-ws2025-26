@@ -1,0 +1,38 @@
+@baseUrl = http://localhost:3000
+@postId = {{createPost.response.body.$._id}}
+
+### List all posts
+GET {{baseUrl}}/posts
+
+### Create a new post
+# @name createPost
+POST {{baseUrl}}/posts
+Content-Type: application/json
+
+{
+  "title": "My First Post",
+  "content": "This is the content of my first post"
+}
+
+### Get the created post
+GET {{baseUrl}}/posts/{{postId}}
+
+### Update the post (partial update)
+PATCH {{baseUrl}}/posts/{{postId}}
+Content-Type: application/json
+
+{
+  "title": "Updated Post Title",
+  "content": "This content has been updated"
+}
+
+### Get updated post
+GET {{baseUrl}}/posts/{{postId}}
+
+### Delete the post
+DELETE {{baseUrl}}/posts/{{postId}}
+
+### Verify post is deleted (should return 404)
+GET {{baseUrl}}/posts/{{postId}}
+
+###

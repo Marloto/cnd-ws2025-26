@@ -9,5 +9,5 @@ Es gibt einen Service-Stub MyServiceImpl und eine innere Klasse MyServiceImplBas
 ### Test
 
 - `grpcurl --plaintext localhost:9898 list`
-- `grpcurl --plaintext localhost:9898 list de.thi.inf.sesa.grpc.MyService`
-- `grpcurl --plaintext -d '{"name": "test"}' localhost:9898 de.thi.inf.sesa.grpc.MyService.SayHello`
+- `grpcurl --plaintext localhost:9898 list de.thi.inf.cnd.grpc.MyService`
+- `grpcurl --plaintext -d '{"name": "test"}' localhost:9898 de.thi.inf.cnd.grpc.MyService.SayHello`
