@@ -50,6 +50,13 @@ function getAuthToken() {
 }
 
 /**
+ * Get current user ID
+ */
+function getCurrentUserId() {
+    return currentUser ? currentUser.id : null;
+}
+
+/**
  * Require authentication before executing callback
  * If not authenticated, shows login modal
  */
@@ -223,10 +230,25 @@ function updateAuthUI() {
         userInfoEl.classList.add('logged-in');
         loginBtn.style.display = 'none';
         usernameEl.textContent = currentUser.username;
+
+        // Show edit buttons only for posts owned by current user
+        document.querySelectorAll('[id^="editBtn-"]').forEach(btn => {
+            const postUserRef = btn.dataset.userref;
+            if (postUserRef && postUserRef === currentUser.id) {
+                btn.style.display = 'block';
+            } else {
+                btn.style.display = 'none';
+            }
+        });
     } else {
         userInfoEl.classList.remove('logged-in');
         loginBtn.style.display = 'block';
         usernameEl.textContent = '';
+
+        // Hide all edit buttons
+        document.querySelectorAll('[id^="editBtn-"]').forEach(btn => {
+            btn.style.display = 'none';
+        });
     }
 }
 

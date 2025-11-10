@@ -38,7 +38,7 @@ public class RestPost {
         logger.info("REST: GET /posts - Listing all posts");
         List<PostResponse> responses = new ArrayList<>();
         this.postService.findAllPosts().forEach(post ->
-                responses.add(new PostResponse(post.getId(), post.getTitle(), post.getContent(), post.getDate())));
+                responses.add(new PostResponse(post.getId(), post.getTitle(), post.getContent(), post.getDate(), post.getUserRef())));
         logger.info("REST: GET /posts - Returned {} posts", responses.size());
         return responses;
     }
@@ -63,6 +63,7 @@ public class RestPost {
                 post.getTitle(),
                 post.getContent(),
                 post.getDate(),
+                post.getUserRef(),
                 commentResponses
         );
     }
@@ -103,20 +104,26 @@ public class RestPost {
             return ResponseEntity.status(401).body(null);
         }
 
-        PostInfo updatedPost = this.postService.updatePost(id, request.getTitle(), request.getContent());
-        if (updatedPost == null) {
-            logger.warn("REST: PUT /posts/{} - Post not found", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        try {
+            PostInfo updatedPost = this.postService.updatePost(id, request.getTitle(), request.getContent(), user.getUserId());
+            if (updatedPost == null) {
+                logger.warn("REST: PUT /posts/{} - Post not found", id);
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
+            // Map domain object to DTO
+            PostResponse response = new PostResponse(
+                    updatedPost.getId(),
+                    updatedPost.getTitle(),
+                    updatedPost.getContent(),
+                    updatedPost.getDate(),
+                    updatedPost.getUserRef()
+            );
+            logger.info("REST: PUT /posts/{} - Successfully updated post", id);
+            return ResponseEntity.ok(response);
+        } catch (SecurityException e) {
+            logger.warn("REST: PUT /posts/{} - Forbidden: {}", id, e.getMessage());
+            return ResponseEntity.status(403).body(null);
         }
-        // Map domain object to DTO
-        PostResponse response = new PostResponse(
-                updatedPost.getId(),
-                updatedPost.getTitle(),
-                updatedPost.getContent(),
-                updatedPost.getDate()
-        );
-        logger.info("REST: PUT /posts/{} - Successfully updated post", id);
-        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
@@ -130,8 +137,13 @@ public class RestPost {
             return ResponseEntity.status(401).body("Unauthorized");
         }
 
-        this.postService.removePost(id);
-        logger.info("REST: DELETE /posts/{} - Successfully deleted post", id);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        try {
+            this.postService.removePost(id, user.getUserId());
+            logger.info("REST: DELETE /posts/{} - Successfully deleted post", id);
+            return new ResponseEntity(HttpStatus.NO_CONTENT);
+        } catch (SecurityException e) {
+            logger.warn("REST: DELETE /posts/{} - Forbidden: {}", id, e.getMessage());
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
     }
 }

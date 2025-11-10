@@ -17,5 +17,6 @@ public class PostDetailResponse {
     private String title;
     private String content;
     private LocalDateTime date;
+    private String userRef;
     private List<CommentResponse> comments;
 }

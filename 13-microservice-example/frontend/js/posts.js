@@ -45,6 +45,11 @@ function displayPosts(posts) {
         const postCard = createPostCard(post);
         container.appendChild(postCard);
     });
+
+    // Update edit button visibility based on auth state
+    if (typeof updateAuthUI === 'function') {
+        updateAuthUI();
+    }
 }
 
 /**
@@ -58,9 +63,20 @@ function createPostCard(post) {
 
     card.innerHTML = `
         <div class="card-body">
-            <h5 class="card-title">${escapeHtml(post.title)}</h5>
-            <p class="card-text">${escapeHtml(post.content)}</p>
-            <p class="text-muted small">${date}</p>
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <h5 class="card-title">${escapeHtml(post.title)}</h5>
+                    <p class="card-text">${escapeHtml(post.content)}</p>
+                    <p class="text-muted small">${date}</p>
+                </div>
+                <button class="btn btn-sm btn-outline-primary"
+                        onclick="showEditModal('${post.id}', \`${escapeHtml(post.title).replace(/`/g, '\\`')}\`, \`${escapeHtml(post.content).replace(/`/g, '\\`')}\`)"
+                        style="display: none;"
+                        id="editBtn-${post.id}"
+                        data-userref="${post.userRef || ''}">
+                    Edit
+                </button>
+            </div>
 
             <hr>
 
@@ -272,6 +288,106 @@ async function reloadCommentsData(postId) {
         displayComments(postId, comments);
     } catch (error) {
         console.error('Error reloading comments:', error);
+    }
+}
+
+/**
+ * Show edit post modal (with auth check)
+ */
+function showEditModal(postId, title, content) {
+    requireAuth(() => {
+        document.getElementById('editPostId').value = postId;
+        document.getElementById('editPostTitle').value = title;
+        document.getElementById('editPostContent').value = content;
+        const modal = new bootstrap.Modal(document.getElementById('editPostModal'));
+        modal.show();
+    });
+}
+
+/**
+ * Update post
+ */
+async function updatePost() {
+    const postId = document.getElementById('editPostId').value;
+    const title = document.getElementById('editPostTitle').value.trim();
+    const content = document.getElementById('editPostContent').value.trim();
+
+    if (!title || !content) {
+        alert('Please fill in all fields');
+        return;
+    }
+
+    try {
+        const options = addAuthHeader({
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ title, content })
+        });
+
+        const response = await fetch(`${POSTS_API_BASE}/${postId}`, options);
+
+        if (response.ok) {
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editPostModal'));
+            modal.hide();
+
+            // Clear form
+            document.getElementById('editPostForm').reset();
+
+            // Reload posts
+            loadPosts();
+        } else if (response.status === 403) {
+            alert('You can only edit your own posts');
+        } else if (response.status === 401) {
+            alert('Please log in to edit posts');
+        } else {
+            alert('Failed to update post');
+        }
+    } catch (error) {
+        console.error('Error updating post:', error);
+        alert('Failed to update post');
+    }
+}
+
+/**
+ * Delete post
+ */
+async function deletePost() {
+    const postId = document.getElementById('editPostId').value;
+
+    if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+        return;
+    }
+
+    try {
+        const options = addAuthHeader({
+            method: 'DELETE'
+        });
+
+        const response = await fetch(`${POSTS_API_BASE}/${postId}`, options);
+
+        if (response.ok || response.status === 204) {
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editPostModal'));
+            modal.hide();
+
+            // Clear form
+            document.getElementById('editPostForm').reset();
+
+            // Reload posts
+            loadPosts();
+        } else if (response.status === 403) {
+            alert('You can only delete your own posts');
+        } else if (response.status === 401) {
+            alert('Please log in to delete posts');
+        } else {
+            alert('Failed to delete post');
+        }
+    } catch (error) {
+        console.error('Error deleting post:', error);
+        alert('Failed to delete post');
     }
 }
 

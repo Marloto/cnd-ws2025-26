@@ -75,31 +75,45 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostInfo removePost(UUID id) {
-        logger.info("SERVICE: Removing post with ID: {}", id);
+    public PostInfo removePost(UUID id, String userRef) {
+        logger.info("SERVICE: Removing post with ID: {} by user: {}", id, userRef);
         PostInfo post = this.postRepository.getPost(id);
-        if (post != null) {
-            this.postRepository.delete(id);
-            logger.info("SERVICE: Successfully removed post {}", id);
-        } else {
+        if (post == null) {
             logger.warn("SERVICE: Post with ID {} not found for removal", id);
+            return null;
         }
+
+        // Business logic: Check if user owns the post
+        if (!post.getUserRef().equals(userRef)) {
+            logger.warn("SERVICE: User {} attempted to delete post {} owned by {}", userRef, id, post.getUserRef());
+            throw new SecurityException("You can only delete your own posts");
+        }
+
+        this.postRepository.delete(id);
+        logger.info("SERVICE: Successfully removed post {}", id);
         return post;
     }
 
     @Override
-    public PostInfo updatePost(UUID id, String title, String content) {
-        logger.info("SERVICE: Updating post with ID: {}", id);
+    public PostInfo updatePost(UUID id, String title, String content, String userRef) {
+        logger.info("SERVICE: Updating post with ID: {} by user: {}", id, userRef);
         PostInfo post = this.postRepository.getPost(id);
-        if (post != null) {
-            post.setTitle(title);
-            post.setContent(content);
-            post.setDate(LocalDateTime.now());
-            this.postRepository.update(post);
-            logger.info("SERVICE: Successfully updated post {}", id);
-        } else {
+        if (post == null) {
             logger.warn("SERVICE: Post with ID {} not found for update", id);
+            return null;
         }
+
+        // Business logic: Check if user owns the post
+        if (!post.getUserRef().equals(userRef)) {
+            logger.warn("SERVICE: User {} attempted to update post {} owned by {}", userRef, id, post.getUserRef());
+            throw new SecurityException("You can only update your own posts");
+        }
+
+        post.setTitle(title);
+        post.setContent(content);
+        post.setDate(LocalDateTime.now());
+        this.postRepository.update(post);
+        logger.info("SERVICE: Successfully updated post {}", id);
         return post;
     }
 }
