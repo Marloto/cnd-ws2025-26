@@ -8,7 +8,7 @@ public class GrpcServer {
     public static void main(String[] args) throws IOException, InterruptedException {
         Server server = ServerBuilder
                 .forPort(9898)
-                //.addService(new HelloServiceImpl())
+                .addService(new HelloServiceImpl())
                 .addService(ProtoReflectionService.newInstance())
                 .build();
 

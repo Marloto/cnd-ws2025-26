@@ -1,0 +1,59 @@
+@baseUrl = http://localhost:8080
+@postId = {{createPost.response.headers.Location}}
+
+### List all posts
+GET {{baseUrl}}/posts
+
+### Create a new post
+# @name createPost
+POST {{baseUrl}}/posts
+Content-Type: application/json
+
+{
+  "title": "My First Post",
+  "content": "This is the content of my first post"
+}
+
+### Get the created post
+GET {{postId}}
+
+### Update the post
+PUT {{postId}}
+Content-Type: application/json
+
+{
+  "title": "Updated Post Title",
+  "content": "This content has been updated"
+}
+
+### Get updated post
+GET {{postId}}
+
+### Add a comment to the post
+POST {{postId}}/comments
+Content-Type: application/json
+
+{
+  "author": "John Doe",
+  "text": "Great post!"
+}
+
+### Add another comment
+POST {{postId}}/comments
+Content-Type: application/json
+
+{
+  "author": "Jane Smith",
+  "text": "Very interesting, thanks for sharing!"
+}
+
+### Get all comments for the post
+GET {{postId}}/comments
+
+### Delete the post
+DELETE {{postId}}
+
+### Verify post is deleted (should return 404)
+GET {{postId}}
+
+###

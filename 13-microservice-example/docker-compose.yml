@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # MongoDB for auth service
+  mongodb:
+    image: mongo:latest
+    container_name: microservices-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: auth
+
+  # Mosquitto MQTT broker for posts service
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: microservices-mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - mosquitto-data:/mosquitto/data
+      - mosquitto-log:/mosquitto/log
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+volumes:
+  mongodb-data:
+  mosquitto-data:
+  mosquitto-log:

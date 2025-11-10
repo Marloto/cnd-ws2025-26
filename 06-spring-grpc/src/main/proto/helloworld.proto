@@ -7,9 +7,7 @@ option java_package = "de.thi.inf.cnd.grpc";
 option java_outer_classname = "HelloWorldProto";
 
 service MyService {
-  rpc SayHello(HelloRequest) returns (HelloResponse) {
-
-  }
+  rpc SayHello(HelloRequest) returns (HelloResponse);
 }
 
 message HelloRequest {

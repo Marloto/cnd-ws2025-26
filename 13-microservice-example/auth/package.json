@@ -1,0 +1,26 @@
+{
+  "name": "auth-service",
+  "version": "1.0.0",
+  "description": "Authentication microservice with hexagonal architecture",
+  "main": "app.js",
+  "scripts": {
+    "start": "DEBUG=auth:* node app.js",
+    "test": "DEBUG=auth:* ./node_modules/mocha/bin/mocha --exit"
+  },
+  "keywords": ["auth", "microservice", "hexagonal"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "debug": "^2.6.9",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^6.0.7"
+  },
+  "devDependencies": {
+    "chai": "^4.3.0",
+    "chai-as-promised": "^7.1.1",
+    "chai-http": "^4.3.0",
+    "mocha": "^8.2.1"
+  }
+}

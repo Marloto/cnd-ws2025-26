@@ -1,0 +1,50 @@
+@baseUrl = http://localhost:3001
+
+### Register a new user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Login
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "password123"
+}
+
+### Extract token from login response
+@token = {{login.response.body.token}}
+
+### Get current user (requires token from login)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+### Change email (requires token)
+PATCH {{baseUrl}}/auth/email
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "email": "newemail@example.com"
+}
+
+### Change password (requires token)
+PATCH {{baseUrl}}/auth/password
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "oldPassword": "password123",
+  "newPassword": "newpassword456"
+}
+
+### Health check
+GET http://localhost:3001/health
