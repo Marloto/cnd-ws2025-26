@@ -1,6 +1,6 @@
 # Microservices Example
 
-A simple microservices architecture example with authentication, posts/comments, and a frontend application.
+A simple microservices architecture example with authentication, posts/comments, and a frontend application. Docker Compose right now only to help with starting MQTT Broker and Database.
 
 ## Architecture
 
@@ -9,8 +9,6 @@ A simple microservices architecture example with authentication, posts/comments,
 ├── auth/                  # Authentication service (Node.js/Express/MongoDB)
 ├── posts/                 # Posts & comments service (Spring Boot/MQTT)
 ├── frontend/              # Frontend application (HTML/CSS/JS)
-├── docker-compose.yml     # Infrastructure services (MongoDB, Mosquitto)
-└── mosquitto.conf         # MQTT broker configuration
 ```
 
 ### Services
@@ -120,6 +118,7 @@ Edit [posts/src/main/resources/application.yml](posts/src/main/resources/applica
 - MongoDB connection
 - MQTT broker settings
 - Server port
+- JWT Secret
 
 ## Development Workflow
 
@@ -133,62 +132,17 @@ Edit [posts/src/main/resources/application.yml](posts/src/main/resources/applica
 
 ### Auth Service
 
-```bash
-cd auth
-npm test
-```
-
-Or use the [test.http](auth/test.http) file with REST Client.
+Use the [test.http](auth/test.http) file with REST Client for quick tests.
 
 ### Posts Service
 
-Use the [test.http](posts/test.http) file with REST Client.
-
-## Architecture Highlights
-
-### Hexagonal Architecture
-
-Both backend services use hexagonal (ports & adapters) architecture:
-
-- **Domain Layer**: Pure business logic
-- **Application Layer**: Use cases and ports (interfaces)
-- **Adapters Layer**:
-  - Ingoing: REST controllers, gRPC
-  - Outgoing: Database, MQTT, external services
-
-### Authentication Flow
-
-1. User registers/logs in via frontend
-2. Auth service returns JWT token
-3. Frontend stores token in localStorage
-4. Protected actions (create post/comment) require authentication
-5. Frontend automatically includes JWT in Authorization header
-
-### Event Publishing
-
-Posts service publishes events via MQTT:
-- Post created
-- Comment added
-
-Subscribe to topics:
-- `posts/created`
-- `posts/commented`
+Use the [test.http](posts/test.http) file with REST Client for quick tests.
 
 ## Stopping Services
 
 ```bash
 # Stop infrastructure
 docker-compose down
-
-# Stop services with Ctrl+C in their terminals
 ```
 
-## Future Enhancements
-
-- Docker Compose for all services
-- Kubernetes deployment
-- API Gateway
-- Service discovery
-- Distributed tracing
-- Rate limiting
-- WebSocket support for real-time updates
+Stop services with Ctrl+C in their terminals
