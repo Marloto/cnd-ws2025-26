@@ -33,34 +33,6 @@ src/
             └── JwtTokenGenerator.js    # JWT implementation
 ```
 
-### Key Concepts
-
-**Domain Layer**: Pure business logic, no dependencies on frameworks
-- `User`: Entity with business rules (email validation, etc.)
-- `UserService`: Interface defining business operations
-
-**Application Layer**: Orchestrates domain logic and defines ports
-- `UserServiceImpl`: Implements business logic using ports
-- `Ports`: Interfaces that adapters must implement
-
-**Adapters**: Infrastructure implementations
-- **Ingoing**: REST API controllers (how users interact with the service)
-- **Outgoing**: MongoDB, Bcrypt, JWT (how the service interacts with external systems)
-
-**Orchestration** (`app.js`): Manual dependency injection
-- Creates all adapter instances
-- Wires them together
-- Configures Express and starts the server
-
-## Features
-
-- User registration with validation
-- User login with JWT token generation
-- Email and password change (authenticated)
-- Password hashing with bcrypt
-- JWT-based authentication
-- MongoDB persistence with Mongoose
-
 ## API Endpoints
 
 | Method | Endpoint | Description | Auth Required |
@@ -180,45 +152,3 @@ curl -X PATCH http://localhost:3001/auth/password \
 ## Testing
 
 Use the included `test.http` file with REST Client extensions in VS Code or IntelliJ.
-
-## Hexagonal Architecture Benefits
-
-1. **Framework Independence**: Core business logic doesn't depend on Express, Mongoose, or any framework
-2. **Testability**: Each layer can be tested independently with mocks
-3. **Flexibility**: Easy to swap implementations (e.g., switch from MongoDB to PostgreSQL)
-4. **Clear Boundaries**: Separation of concerns between business logic and infrastructure
-5. **Maintainability**: Changes to infrastructure don't affect business logic
-
-## Dependency Injection without Spring Boot
-
-Unlike Spring Boot's automatic dependency injection, Node.js requires manual wiring. This is done in `app.js`:
-
-```javascript
-// 1. Create adapters
-const userRepository = new MongoUserRepository();
-const passwordHasher = new BcryptPasswordHasher();
-const tokenGenerator = new JwtTokenGenerator(jwtSecret);
-
-// 2. Inject into application service
-const userService = new UserServiceImpl(
-    userRepository,
-    passwordHasher,
-    tokenGenerator
-);
-
-// 3. Create REST routes with injected service
-const userRoutes = createUserRoutes(userService, authMiddleware);
-```
-
-This explicit orchestration replaces Spring Boot's `@Autowired` and `@Component` annotations.
-
-## Security Notes
-
-- **Production**: Change `JWT_SECRET` to a strong random value
-- Passwords are hashed with bcrypt (10 salt rounds)
-- JWT tokens expire after 24 hours (configurable)
-- Protected routes require valid JWT in Authorization header
-
-## License
-
-ISC
