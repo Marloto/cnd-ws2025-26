@@ -73,7 +73,6 @@ src/main/java/de/thi/inf/cnd/rest/
 
 ### 1. Start Mosquitto MQTT Broker with Docker
 ```bash
-cd .. # go to main folder
 docker-compose up -d
 ```
 

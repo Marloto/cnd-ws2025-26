@@ -1,0 +1,88 @@
+/* Main Styles */
+.post-card {
+    margin-bottom: 20px;
+}
+
+.comment {
+    background-color: #f8f9fa;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+}
+
+.comment-form {
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.comments-section {
+    display: none;
+    margin-top: 10px;
+}
+
+.comments-section.loaded {
+    display: block;
+}
+
+/* Auth Header */
+.auth-header {
+    background-color: #f8f9fa;
+    padding: 10px 0;
+    margin-bottom: 20px;
+}
+
+.user-info {
+    display: none;
+}
+
+.user-info.logged-in {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+/* Modal Tabs */
+.auth-tabs {
+    margin-bottom: 20px;
+}
+
+.auth-tab {
+    cursor: pointer;
+    padding: 10px 20px;
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+}
+
+.auth-tab.active {
+    border-bottom: 2px solid #0d6efd;
+    color: #0d6efd;
+    font-weight: bold;
+}
+
+.auth-form {
+    display: none;
+}
+
+.auth-form.active {
+    display: block;
+}
+
+.error-message {
+    display: none;
+    color: #dc3545;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c2c7;
+    border-radius: 5px;
+}
+
+.error-message.show {
+    display: block;
+}
