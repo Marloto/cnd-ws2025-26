@@ -5,7 +5,7 @@ A simple microservices architecture example with authentication, posts/comments,
 ## Architecture
 
 ```
-13-microservice-example/
+microservice-example/
 ├── auth/                  # Authentication service (Node.js/Express/MongoDB)
 ├── posts/                 # Posts & comments service (Spring Boot/MQTT)
 ├── frontend/              # Frontend application (HTML/CSS/JS)
@@ -35,7 +35,7 @@ A simple microservices architecture example with authentication, posts/comments,
 ### 1. Start Infrastructure Services
 
 ```bash
-# From 13-microservice-example directory
+# From microservice-example directory
 docker-compose up -d
 ```
 

@@ -1,0 +1,36 @@
+services:
+  db:
+    image: mysql:9
+    networks:
+      - mynet2
+  app:
+    image: nginx:1.28
+    # was fehlt damit es zugreifbar wird?
+    # -> portweiterleitung fehlt noch! "ports"
+    ports:
+      - "12345:80"
+    environment:
+      - "VAR1=KEY1"
+    depends_on:
+      - db
+    volumes:
+      # - /var/www
+      # - ./www:/var/www
+      - www:/var/www
+    networks:
+      - mynet1
+      - mynet2
+  app2:
+    build:
+      context: app2/
+    networks:
+      - mynet1
+
+
+volumes:
+  www:
+   # ... spezial konfigurationen, je nachdem was das volume können soll
+
+networks:
+  mynet1:
+  mynet2:

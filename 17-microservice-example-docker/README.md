@@ -1,79 +1,93 @@
-# Microservices Example
+# Microservices Example with Docker
 
-A simple microservices architecture example with authentication, posts/comments, and a frontend application. Docker Compose right now only to help with starting MQTT Broker and Database.
+A fully containerized microservices architecture with authentication, posts/comments, and a frontend application. All services run in Docker containers with nginx as a reverse proxy.
 
 ## Architecture
 
 ```
-13-microservice-example/
+microservice-example/
 ├── auth/                  # Authentication service (Node.js/Express/MongoDB)
-├── posts/                 # Posts & comments service (Spring Boot/MQTT)
+├── posts/                 # Posts & comments service (Spring Boot/MySQL/MQTT)
 ├── frontend/              # Frontend application (HTML/CSS/JS)
+├── nginx.conf             # Nginx reverse proxy configuration
+├── docker-compose.yml     # Docker Compose orchestration
+└── mosquitto.conf         # MQTT broker configuration
 ```
 
 ### Services
 
-1. **Auth Service** (Port 3001)
+1. **Nginx Reverse Proxy** (Port 80)
+   - Routes `/auth` to auth service
+   - Routes `/posts` to posts service
+   - Routes `/` to frontend
+   - Single entry point for all services
+
+2. **Auth Service** (Internal port 3001)
    - User registration and login
    - JWT token generation
    - Built with Node.js, Express, MongoDB
    - Hexagonal architecture
 
-2. **Posts Service** (Port 8080)
+3. **Posts Service** (Internal port 8080)
    - Blog posts and comments
    - MQTT event publishing
-   - Built with Spring Boot
+   - Built with Spring Boot, MySQL
    - Hexagonal architecture
 
-3. **Frontend** (Port 8000)
+4. **Frontend** (Internal port 80)
    - Single-page application
-   - Integrates auth and posts services
+   - Integrates auth and posts services via nginx
    - Modular JavaScript (auth.js, posts.js, config.js)
+
+5. **MongoDB** (Port 27017)
+   - Database for auth service
+   - Persistent volume storage
+
+6. **MySQL** (Internal port 3306)
+   - Database for posts service
+   - Persistent volume storage
+
+7. **Mosquitto MQTT** (Ports 1883, 9001)
+   - Event broker for posts service
+   - Persistent volume storage
 
 ## Quick Start
 
-### 1. Start Infrastructure Services
+### Prerequisites
+
+- Docker and Docker Compose installed
+- Optional: `.env` file to override default configuration (see Configuration section)
+
+### 1. Start All Services
 
 ```bash
-# From 13-microservice-example directory
+# From 17-microservice-example-docker directory
 docker-compose up -d
 ```
 
-This starts:
-- MongoDB (port 27017) - for auth service
-- Mosquitto MQTT broker (ports 1883, 9001) - for posts service
+This starts all services:
+- Nginx reverse proxy
+- Auth service
+- Posts service
+- Frontend
+- MongoDB
+- MySQL
+- Mosquitto MQTT broker
 
-### 2. Start Auth Service
+### 2. Access the Application
 
-```bash
-cd auth
-npm install
-npm start
-```
+Open your browser and navigate to:
+- **Main Application**: http://localhost/
+- **Auth API**: http://localhost/auth
+- **Posts API**: http://localhost/posts
 
-Auth service runs on http://localhost:3001
-
-### 3. Start Posts Service
-
-```bash
-cd posts
-./mvnw spring-boot:run
-```
-
-Posts service runs on http://localhost:8080
-
-### 4. Start Frontend
-
-```bash
-cd frontend
-python3 -m http.server 8000
-```
-
-Frontend runs on http://localhost:8000
+All requests are routed through the nginx reverse proxy on port 80.
 
 ## API Endpoints
 
-### Auth Service (http://localhost:3001)
+Access all endpoints through the nginx reverse proxy at http://localhost
+
+### Auth Service (http://localhost/auth)
 
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
@@ -82,9 +96,9 @@ Frontend runs on http://localhost:8000
 | GET | `/auth/me` | Get current user | Yes |
 | PATCH | `/auth/email` | Change email | Yes |
 | PATCH | `/auth/password` | Change password | Yes |
-| GET | `/health` | Health check | No |
+| GET | `/auth/health` | Health check | No |
 
-### Posts Service (http://localhost:8080)
+### Posts Service (http://localhost/posts)
 
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
@@ -96,53 +110,109 @@ Frontend runs on http://localhost:8000
 
 ## Configuration
 
-### Frontend Configuration
+### Environment Variables
 
-Edit [frontend/js/config.js](frontend/js/config.js) to change API endpoints:
+The docker-compose.yml includes sensible defaults for development. You can optionally create a `.env` file to override these defaults:
 
-```javascript
-const AUTH_API_BASE = 'http://localhost:3001/auth';
-const POSTS_API_BASE = 'http://localhost:8080/posts';
+**Default values (no .env file needed for development):**
+- `SECRET=dev-secret-change-in-production`
+- `MYSQL_USER=posts_user`
+- `MYSQL_PASSWORD=posts_password`
+- `MYSQL_ROOT_PASSWORD=root_password`
+- `MYSQL_DATABASE=posts_db`
+
+**For production**, create a `.env` file to override with secure values:
+
+```env
+# JWT Secret (shared across auth and posts services)
+SECRET=your-secure-secret-key
+
+# MySQL Database Configuration
+MYSQL_USER=posts_user
+MYSQL_PASSWORD=your-secure-password
+MYSQL_ROOT_PASSWORD=your-secure-root-password
+MYSQL_DATABASE=posts_db
 ```
 
-### Auth Service Configuration
+### Frontend Configuration
 
-Environment variables:
-- `MONGO_DB_URL` - MongoDB connection (default: `mongodb://localhost:27017/auth`)
-- `JWT_SECRET` - JWT signing key (default: `your-secret-key-change-in-production`)
-- `PORT` - Service port (default: `3001`)
+The frontend configuration is automatically injected via Docker Compose configs. The API endpoints are set to use the nginx reverse proxy:
 
-### Posts Service Configuration
+```javascript
+const AUTH_API_BASE = 'http://localhost/auth';
+const POSTS_API_BASE = 'http://localhost/posts';
+```
 
-Edit [posts/src/main/resources/application.yml](posts/src/main/resources/application.yml):
-- MongoDB connection
-- MQTT broker settings
-- Server port
-- JWT Secret
+This is defined in [docker-compose.yml](docker-compose.yml) under the `configs` section and overrides [frontend/js/config.js](frontend/js/config.js).
+
+### Nginx Configuration
+
+The nginx reverse proxy is configured in [nginx.conf](nginx.conf) to route requests:
+- `/auth` → auth service (port 3001)
+- `/posts` → posts service (port 8080)
+- `/` → frontend (port 80)
 
 ## Development Workflow
 
-1. Start infrastructure: `docker-compose up -d`
-2. Start both backend services (auth and posts)
-3. Start frontend server
-4. Open http://localhost:8000 in browser
-5. Register/login and start creating posts
+1. (Optional) Create `.env` file to override default configuration
+2. Start all services: `docker-compose up -d`
+3. Open http://localhost in browser
+4. Register/login and start creating posts
+5. View logs: `docker-compose logs -f [service-name]`
+
+### Rebuilding Services
+
+After code changes, rebuild specific services:
+
+```bash
+# Rebuild and restart a specific service
+docker-compose build auth
+docker-compose up -d auth
+
+# Rebuild all services
+docker-compose build
+docker-compose up -d
+```
 
 ## Testing
 
 ### Auth Service
 
-Use the [test.http](auth/test.http) file with REST Client for quick tests.
+Use the [test.http](test.http) file with REST Client. Update the base URL to use the nginx proxy:
 
 ### Posts Service
 
-Use the [test.http](posts/test.http) file with REST Client for quick tests.
+Use the [test.http](test.http) file with REST Client. Update the base URL to use the nginx proxy:
 
-## Stopping Services
+## Managing Services
 
 ```bash
-# Stop infrastructure
+# View all running services
+docker-compose ps
+
+# View logs for all services
+docker-compose logs -f
+
+# View logs for specific service
+docker-compose logs -f nginx
+docker-compose logs -f auth
+
+# Stop all services
 docker-compose down
+
+# Stop and remove volumes (clears all data)
+docker-compose down -v
+
+# Restart a specific service
+docker-compose restart nginx
 ```
 
-Stop services with Ctrl+C in their terminals
+## Troubleshooting
+
+### Port Already in Use
+
+If port 80 is already in use, edit [docker-compose.yml](docker-compose.yml) to change the nginx port mapping:
+```yaml
+ports:
+  - "8080:80"  # Access via http://localhost:8080
+```
