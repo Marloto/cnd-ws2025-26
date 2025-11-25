@@ -17,8 +17,6 @@ services:
     image: mongo:latest
     container_name: microservices-mongodb
     restart: unless-stopped
-    ports:
-      - "27017:27017"
     volumes:
       - mongodb-data:/data/db
     environment:
