@@ -34,11 +34,10 @@ services:
   
   # Authentification service in auth/
   auth:
-    restart: unless-stopped
     image: case-projects.rz.fh-ingolstadt.de/cnd-sebastian-apel/auth
     environment:
       - "MONGO_DB_URL=mongodb://mongodb:27017/auth"
-      - "JWT_SECRET=${SECRET:-dev-secret-change-in-production}"
+      - "JWT_SECRET=${SECRET:-dev-secret-key-min-32-chars-change-in-prod}"
     deploy:
       replicas: 1
       restart_policy:
@@ -83,7 +82,7 @@ services:
       - "SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD:-posts_password}"
       - "SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.jdbc.Driver"
       - "MQTT_BROKER=tcp://mosquitto:1883"
-      - "JWT_SECRET=${SECRET:-dev-secret-change-in-production}"
+      - "JWT_SECRET=${SECRET:-dev-secret-key-min-32-chars-change-in-prod}"
     healthcheck:
       test: ["CMD-SHELL", "wget -O /dev/null -q http://localhost:8080/actuator/health || exit 1"]
       interval: 10s

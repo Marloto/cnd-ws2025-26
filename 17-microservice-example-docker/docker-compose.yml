@@ -35,7 +35,7 @@ services:
       context: auth/
     environment:
       - "MONGO_DB_URL=mongodb://mongodb:27017/auth"
-      - "JWT_SECRET=${SECRET:-dev-secret-change-in-production}"
+      - "JWT_SECRET=${SECRET:-dev-secret-key-min-32-chars-change-in-prod}"
     depends_on:
       mongodb:
         condition: service_healthy
@@ -75,7 +75,7 @@ services:
       - "SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD:-posts_password}"
       - "SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.jdbc.Driver"
       - "MQTT_BROKER=tcp://mosquitto:1883"
-      - "JWT_SECRET=${SECRET:-dev-secret-change-in-production}"
+      - "JWT_SECRET=${SECRET:-dev-secret-key-min-32-chars-change-in-prod}"
     depends_on:
       mysqldb:
         condition: service_healthy
