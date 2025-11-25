@@ -130,9 +130,7 @@ services:
 
 configs:
   frontend-config:
-    content: |
-      const AUTH_API_BASE = 'http://localhost/auth';
-      const POSTS_API_BASE = 'http://localhost/posts';
+    external: true
 
 volumes:
   mongodb-data:
