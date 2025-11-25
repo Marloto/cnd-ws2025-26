@@ -12,3 +12,20 @@ mqtt:
 # JWT Configuration (must match auth service secret!)
 jwt:
   secret: your-secret-key-change-in-production
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true

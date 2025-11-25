@@ -23,6 +23,12 @@ services:
       - mongodb-data:/data/db
     environment:
       MONGO_INITDB_DATABASE: auth
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
   
   # Authentification service in auth/
   auth:
@@ -33,7 +39,14 @@ services:
       - "MONGO_DB_URL=mongodb://mongodb:27017/auth"
       - "JWT_SECRET=${SECRET:-dev-secret-change-in-production}"
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O /dev/null -q http://localhost:3001/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
   
   # Database for posts service
   mysqldb:
@@ -45,6 +58,12 @@ services:
       - "MYSQL_PASSWORD=${MYSQL_PASSWORD:-posts_password}"
       - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root_password}"
       - "MYSQL_DATABASE=${MYSQL_DATABASE:-posts_db}"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # Post service in posts/
   posts:
@@ -60,8 +79,16 @@ services:
       - "MQTT_BROKER=tcp://mosquitto:1883"
       - "JWT_SECRET=${SECRET:-dev-secret-change-in-production}"
     depends_on:
-      - mysqldb
-      - mosquitto
+      mysqldb:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O /dev/null -q http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
 
   # Simple frontend from frontend/
   frontend:
@@ -77,13 +104,16 @@ services:
     image: eclipse-mosquitto
     container_name: microservices-mosquitto
     restart: unless-stopped
-    ports:
-      - "1883:1883"
-      - "9001:9001"
     volumes:
       - mosquitto-data:/mosquitto/data
       - mosquitto-log:/mosquitto/log
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 5 nc -z localhost 1883 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 configs:
   frontend-config:
