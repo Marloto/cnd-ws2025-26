@@ -115,7 +115,7 @@ Access all endpoints through the nginx reverse proxy at http://localhost
 The docker-compose.yml includes sensible defaults for development. You can optionally create a `.env` file to override these defaults:
 
 **Default values (no .env file needed for development):**
-- `SECRET=dev-secret-change-in-production`
+- `SECRET=dev-secret-key-min-32-chars-change-in-prod`
 - `MYSQL_USER=posts_user`
 - `MYSQL_PASSWORD=posts_password`
 - `MYSQL_ROOT_PASSWORD=root_password`
