@@ -3,8 +3,10 @@ kind: Pod
 metadata:
   name: multi-container-example
 spec:
+  imagePullSecrets:
+    - name: harbor-registry
   containers:
     - name: app1
-      image: marloto/express-example
+      image: case-projects.rz.fh-ingolstadt.de/cnd-sebastian-apel/simple-express:latest
     - name: app2
       image: nginx:1.29
