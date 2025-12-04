@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: post-service
+grpc:
+  server:
+    port: 9898
+mqtt:
+  broker: tcp://localhost:1883
+  client: ExampleClient
+  topic: example
+
+# JWT Configuration (must match auth service secret!)
+jwt:
+  secret: your-secret-key-change-in-production
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true

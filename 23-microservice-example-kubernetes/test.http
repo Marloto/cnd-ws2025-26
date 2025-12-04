@@ -1,0 +1,105 @@
+# Posts Service Test Suite
+# This file tests both authentication (via auth service) and posts operations
+@authBaseUrl = http://localhost:8080
+@postsBaseUrl = http://localhost:8080
+
+###############################################################################
+# Authentication Flow
+###############################################################################
+
+### Register a new user
+# @name register
+POST {{authBaseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Login and get JWT token
+# @name login
+POST {{authBaseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "password123"
+}
+
+### Extract token from login response
+@token = {{login.response.body.token}}
+
+### Verify authentication - Get current user
+GET {{authBaseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+###############################################################################
+# Posts Operations (Authenticated)
+###############################################################################
+
+### List all posts (public - no auth required)
+GET {{postsBaseUrl}}/posts
+
+### Create a new post (requires authentication)
+# @name createPost
+POST {{postsBaseUrl}}/posts
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "My First Post",
+  "content": "This is the content of my first post"
+}
+
+### Extract post ID from Location header
+@postId = {{createPost.response.headers.Location}}
+
+### Get the created post (public - no auth required)
+GET {{postId}}
+
+### Update the post (requires authentication)
+PUT {{postId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Updated Post Title",
+  "content": "This content has been updated"
+}
+
+### Get updated post
+GET {{postId}}
+
+### Add a comment to the post
+POST {{postId}}/comments
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "author": "John Doe",
+  "text": "Great post!"
+}
+
+### Add another comment
+POST {{postId}}/comments
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "author": "Jane Smith",
+  "text": "Very interesting, thanks for sharing!"
+}
+
+### Get all comments for the post
+GET {{postId}}/comments
+
+### Delete the post
+DELETE {{postId}}
+Authorization: Bearer {{token}}
+
+### Verify post is deleted (should return 404)
+GET {{postId}}
+
+###
