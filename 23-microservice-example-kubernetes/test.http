@@ -1,7 +1,7 @@
 # Posts Service Test Suite
 # This file tests both authentication (via auth service) and posts operations
-@authBaseUrl = http://localhost:8080
-@postsBaseUrl = http://localhost:8080
+@authBaseUrl = http://localhost
+@postsBaseUrl = http://localhost
 
 ###############################################################################
 # Authentication Flow

@@ -41,13 +41,20 @@ public class MqttPostPublisher implements PostPublisher {
         try {
             MemoryPersistence persistence = new MemoryPersistence();
             this.client = new MqttClient(broker, clientId, persistence);
+
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
+            connOpts.setAutomaticReconnect(true);  // Enable automatic reconnection
+            connOpts.setConnectionTimeout(10);      // 10 seconds connection timeout
+            connOpts.setKeepAliveInterval(20);      // Keep-alive every 20 seconds
+
             logger.info("MQTT: Connecting to broker: {}", broker);
             client.connect(connOpts);
             logger.info("MQTT: Successfully connected to broker");
         } catch (MqttException me) {
             logger.error("MQTT: Failed to connect to broker: {} (reason: {})", broker, me.getReasonCode(), me);
+            // Don't throw - let automatic reconnect handle it
+            logger.warn("MQTT: Will attempt to reconnect automatically");
         }
     }
 
@@ -74,7 +81,21 @@ public class MqttPostPublisher implements PostPublisher {
         }
     }
 
-    private void publishMessage(String content, int qos) {
+    private synchronized void publishMessage(String content, int qos) {
+        // Check if client is connected (synchronized to prevent race conditions)
+        if (client == null || !client.isConnected()) {
+            logger.warn("MQTT: Client not connected, attempting to reconnect...");
+            try {
+                if (client != null && !client.isConnected()) {
+                    client.reconnect();
+                    logger.info("MQTT: Reconnected successfully");
+                }
+            } catch (MqttException e) {
+                logger.error("MQTT: Failed to reconnect: {}", e.getMessage());
+                return; // Skip publishing if can't reconnect
+            }
+        }
+
         MqttMessage message = new MqttMessage(content.getBytes());
         message.setQos(qos);
         try {

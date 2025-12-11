@@ -14,4 +14,4 @@ RUN npm ci --only=production && npm cache clean --force
 COPY . .
 
 # Start the application
-CMD ["node", "app.js"]
+CMD ["npm", "start"]

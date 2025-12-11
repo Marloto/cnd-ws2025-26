@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: posts-service
+  labels:
+    app: posts-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: posts-service
+  template:
+    metadata:
+      labels:
+        app: posts-service
+    spec:
+      containers:
+      - name: posts-service
+        image: case-projects.rz.fh-ingolstadt.de/cnd-sebastian-apel/posts:latest
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: grpc
+          containerPort: 9898
+        env:
+        - name: SPRING_APPLICATION_NAME
+          value: "post-service"
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql-service:3306/postsdb"
+        - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+          value: "com.mysql.cj.jdbc.Driver"
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mysql-credentials
+              key: username
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-credentials
+              key: password
+        - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+          value: "update"
+        - name: MQTT_BROKER
+          value: "tcp://mosquitto-service:1883"
+        - name: MQTT_CLIENT
+          value: "PostServiceClient"
+        - name: MQTT_TOPIC
+          value: "posts/events"
+        - name: GRPC_SERVER_PORT
+          value: "9898"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: secret
+
+        # Liveness probe - checks if application is alive
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        # Readiness probe - checks if application is ready to serve traffic
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        # Startup probe - allows for slow startup
+        startupProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: http
+          initialDelaySeconds: 0
+          periodSeconds: 5
+          failureThreshold: 30
+
+        # Resource limits and requests
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: posts-service
+spec:
+  selector:
+    app: posts-service
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8080
+    targetPort: http
+  - name: grpc
+    protocol: TCP
+    port: 9898
+    targetPort: grpc
+  type: ClusterIP

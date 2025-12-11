@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+data:
+  config.js: |
+    /**
+     * Configuration Module
+     *
+     * Defines API endpoints for the frontend.
+     * This file is provided via Kubernetes ConfigMap.
+     */
+
+    const AUTH_API_BASE = 'http://localhost/auth';
+    const POSTS_API_BASE = 'http://localhost/posts';
+
+    console.log('Frontend configuration loaded:', {
+        AUTH_API_BASE,
+        POSTS_API_BASE
+    });
