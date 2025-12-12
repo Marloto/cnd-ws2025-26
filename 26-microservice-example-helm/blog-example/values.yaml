@@ -1,0 +1,31 @@
+ingress:
+  host: localhost
+secret: "your-secret-key-change-in-production"
+
+mongodb:
+  username: "admin"
+  password: "admin123"
+  database: "auth"
+  storage:
+    size: 1Gi
+    storageClassName: ""  # empty = use cluster default, or set to match storage.storageClassName for local storage
+    accessMode: ReadWriteOnce
+mysqldb:
+  rootPassword: "rootpass123"
+  username: "admin"
+  password: "admin123"
+  database: "auth"
+  storage:
+    size: 2Gi
+    storageClassName: ""  # empty = use cluster default, or set to match storage.storageClassName for local storage
+    accessMode: ReadWriteOnce
+
+# Storage configuration
+storage:
+  # Set to true to enable local hostPath storage (for development/testing only)
+  # This will create both StorageClass and PersistentVolumes
+  useLocalStorage: false
+  # Name of the local storage class (only used if useLocalStorage: true)
+  storageClassName: "local-storage"
+  # Base path for hostPath volumes (only used if useLocalStorage: true)
+  hostPath: "/mnt/data"

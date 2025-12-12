@@ -1,0 +1,52 @@
+{{- if .Values.storage.useLocalStorage }}
+---
+# StorageClass for local development using hostPath
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.storage.storageClassName }}
+  labels:
+    app: blog-example
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+
+---
+# MySQL PersistentVolume
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv
+  labels:
+    app: mysql
+    type: local
+spec:
+  storageClassName: {{ .Values.storage.storageClassName }}
+  capacity:
+    storage: {{ .Values.mysqldb.storage.size }}
+  accessModes:
+    - {{ .Values.mysqldb.storage.accessMode }}
+  hostPath:
+    path: {{ .Values.storage.hostPath }}/mysql
+    type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Retain
+
+---
+# MongoDB PersistentVolume
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongodb-pv
+  labels:
+    app: mongodb
+    type: local
+spec:
+  storageClassName: {{ .Values.storage.storageClassName }}
+  capacity:
+    storage: {{ .Values.mongodb.storage.size }}
+  accessModes:
+    - {{ .Values.mongodb.storage.accessMode }}
+  hostPath:
+    path: {{ .Values.storage.hostPath }}/mongodb
+    type: DirectoryOrCreate
+  persistentVolumeReclaimPolicy: Retain
+{{- end }}

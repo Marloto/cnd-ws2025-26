@@ -1,0 +1,8 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your release is named {{ .Release.Name }}.
+
+Get the application status:
+  kubectl get pods -l app={{ .Release.Name }}
+
+Enjoy!
