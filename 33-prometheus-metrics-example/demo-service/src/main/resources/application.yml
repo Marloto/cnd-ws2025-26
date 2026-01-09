@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: demo-service
+
+server:
+  port: ${SERVER_PORT:8081}
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics  # Expose Prometheus endpoint
+      base-path: /actuator
+  metrics:
+    tags:
+      application: ${spring.application.name}  # Add application tag to all metrics
+    export:
+      prometheus:
+        enabled: true  # Enable Prometheus format
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+
+logging:
+  level:
+    root: INFO
+    de.thi.inf.cnd: DEBUG

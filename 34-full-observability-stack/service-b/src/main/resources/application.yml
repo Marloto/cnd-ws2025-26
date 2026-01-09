@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: service-b
+  config:
+    import: optional:configserver:http://config-server:8888
+
+# Actuator configuration for metrics
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+      base-path: /actuator
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    export:
+      prometheus:
+        enabled: true
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true

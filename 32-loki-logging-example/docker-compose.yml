@@ -1,0 +1,79 @@
+version: "3.8"
+
+services:
+  # Loki - Log aggregation system
+  loki:
+    image: grafana/loki:2.9.3
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki-data:/loki
+    networks:
+      - logging
+
+  # Promtail - Log collector (reads Docker logs)
+  promtail:
+    image: grafana/promtail:2.9.3
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./promtail-config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - logging
+    depends_on:
+      - loki
+
+  # Grafana - Visualization and querying
+  grafana:
+    image: grafana/grafana:10.2.3
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+    networks:
+      - logging
+    depends_on:
+      - loki
+
+  # Example Spring Boot service A
+  service-a:
+    build: ./service-a
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_APPLICATION_NAME=service-a
+      - SERVER_PORT=8081
+    labels:
+      logging: "promtail"
+      service: "service-a"
+    networks:
+      - logging
+
+  # Example Spring Boot service B
+  service-b:
+    build: ./service-b
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_APPLICATION_NAME=service-b
+      - SERVER_PORT=8082
+    labels:
+      logging: "promtail"
+      service: "service-b"
+    networks:
+      - logging
+
+networks:
+  logging:
+    driver: bridge
+
+volumes:
+  loki-data:
+  grafana-data:

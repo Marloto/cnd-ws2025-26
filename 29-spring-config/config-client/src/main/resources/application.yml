@@ -1,0 +1,17 @@
+spring:
+  profiles:
+    active: development
+  application:
+    name: cnd01
+  config:
+    import: optional:configserver:http://localhost:8888
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,refresh
+
+logging:
+  level:
+    root: INFO

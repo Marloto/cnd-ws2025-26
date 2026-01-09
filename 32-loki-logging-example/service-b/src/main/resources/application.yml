@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: service-b
+
+server:
+  port: ${SERVER_PORT:8082}
+
+logging:
+  level:
+    root: INFO
+    de.thi.inf.cnd: DEBUG

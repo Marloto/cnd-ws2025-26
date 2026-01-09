@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: service-a
+
+server:
+  port: ${SERVER_PORT:8081}
+
+logging:
+  level:
+    root: INFO
+    de.thi.inf.cnd: DEBUG
